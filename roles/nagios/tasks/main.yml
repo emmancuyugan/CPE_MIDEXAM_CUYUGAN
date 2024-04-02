@@ -1,0 +1,42 @@
+- name: Install required packages
+  apt:
+    name:
+      - build-essential
+      - apache2
+      - php
+      - libapache2-mod-php
+      - libgd-dev
+      - libmcrypt-dev
+      - libssl-dev
+      - wget
+      - unzip
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: Download Nagios Core
+  get_url:
+    url: https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.5.1.tar.gz
+    dest: /tmp/nagios-4.5.1.tar.gz
+  when: ansible_distribution == "Ubuntu"
+
+- name: Extract Nagios Core
+  unarchive:
+    src: /tmp/nagios-4.5.1.tar.gz
+    dest: /tmp
+    remote_src: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Compile and Install Nagios Core
+  command:
+    cmd: "{{ item }}"
+    chdir: /tmp/nagios-4.5.1/
+  loop:
+    - ./configure --with-httpd-conf=/etc/apache2/sites-enabled
+    - make all
+    - make install
+    - make install-init
+    - make install-config
+    - make install-commandmode
+    - make install-webconf
+  when: ansible_distribution == "Ubuntu"
+

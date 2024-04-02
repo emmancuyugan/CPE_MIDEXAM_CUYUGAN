@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+ 
+  - name: Update package cache
+    apt:
+      update_cache: yes
+    when: ansible_distribution == 'Ubuntu'
+
+  - name: Update package cache
+    yum:
+      name: '*'
+      state: latest
+    when: ansible_distribution == 'CentOS'
+
+- hosts: all
+  become: true
+  roles:
+    - elk_stack
+    - prometheus
+    - nagios
